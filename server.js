@@ -85,7 +85,6 @@ function onNewPlayer (data) {
   var newPlayer = new Player(data.lat, data.lng);
   newPlayer.id = this.id;
   // Broadcast new player to connected socket clients
-  util.log('broadcasting');
   this.broadcast.emit('new player', {id: newPlayer.id, lat: newPlayer.getLat(), lng: newPlayer.getLng()});
   // Send existing players to the new player
   var i, existingPlayer;

@@ -1,6 +1,34 @@
 var map;
 var players = [];
 var player = {markers: [], lat: -34.397, lng: 150.644};
+var socket;
+
+function setEventHandlers() {
+    console.log("connection");
+    socket.on("connect", onSocketConnected);
+    socket.on("disconnect", onSocketDisconnect);
+    socket.on("new player", onNewPlayer);
+    socket.on("move player", onMovePlayer);
+    socket.on("remove player", onRemovePlayer);
+}
+function onNewPlayer(p){
+    console.log("new player  " + p.lat);
+}
+function onSocketConnected() {
+    console.log("Connected to socket server");
+};
+
+function onSocketDisconnect() {
+    console.log("Disconnected from socket server");
+};
+
+function onMovePlayer(data) {
+
+};
+
+function onRemovePlayer(data) {
+
+};
 
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
@@ -48,9 +76,9 @@ function initMap() {
     initMarkers();
     setInterval(function() {
 	   getPosition(faceMarker);
-        console.log("fuck");
     }, 1000);
-
+    socket = io.connect();
+    setEventHandlers();
 }
 
 function getPosition(faceMarker) {
@@ -119,7 +147,7 @@ function handleLocationError(browserHasGeolocation, faceMarker, pos) {
                           'Error: The Geolocation service failed.' :
                           'Error: Your browser doesn\'t support geolocation.');
 }
-
+/*
 // Create an array to store our particles
 var particles = [];
 
@@ -292,3 +320,4 @@ if (context) {
         draw();
     }, 1000 / targetFPS);
 }
+*/

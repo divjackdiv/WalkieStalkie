@@ -42,7 +42,7 @@ function init() {
     // Start listening for events
     setEventHandlers();
 }
-	
+
 /* -----------------------
    Game event handlers
    ------------------------*/
@@ -88,10 +88,10 @@ function onNewPlayer (data) {
   newPlayer.id = this.id;
   // defining what kind of user
   if (hunters > victims) {
-  	this.hunted = True;
+  	this.hunted = true;
   	victims++;
   } else {
-  	this.hunted = False;
+  	this.hunted = false;
   	hunters++;
   }
   // Broadcast new player to connected socket clients
@@ -151,5 +151,3 @@ function playerById(id) {
     }
     return false;
 }
-
-

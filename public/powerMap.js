@@ -1,6 +1,11 @@
 var map;
 var players = [];
 var player = {markers: [], lat: -34.397, lng: 150.644};
+
+var socket = io();
+socket.on('new player', function(msg){
+    console.log("new player");
+});
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
       center: {lat: -34.397, lng: 150.644},
@@ -58,27 +63,26 @@ function getPosition(infoWindow) {
 }
 function smokeBomb(){
     document.getElementById('myCanvas').style.display = "block";
-    /*for (var i = 0; i < players[playerIndex].markers.length ; i++){
-        players[playerIndex].markers[i].setMap(null);
+    for (var playerIndex = 0; playerIndex <  players.length; playerIndex++){
+        for (var i = 0; i < players[playerIndex].markers.length ; i++){
+            players[playerIndex].markers[i].setMap(null);
+        }
     }
-    setTimeout(function() { makeVisibleAgain(playerIndex); }, 5000);*/
     setTimeout(function() { makeVisibleAgain(); }, 5000);
 }
 
 function makeVisibleAgain(){
+    console.log("ggg");
     document.getElementById('myCanvas').style.display = "none";
-    /*for (var i = 0; i < players[playerIndex].markers.length ; i++){
-        players[playerIndex].markers[i].setMap(map);
-    }*/
+
+    for (var playerIndex = 0; playerIndex <  players.length; playerIndex++){
+        for (var i = 0; i < players[playerIndex].markers.length ; i++){
+            players[playerIndex].markers[i].setMap(map);
+        }
+    }
 }
 
 function initMarkers(){
-    var player1 = {markers: [], lat: -34.3972, lng: 150.645};
-    var player2 = {markers: [], lat: -34.3972, lng: 150.642};
-    var player3 = {markers: [], lat: -34.395, lng: 150.643};
-    players.push(player1);
-    players.push(player2);
-    players.push(player3);
     for (var i = 0; i < players.length; i++){
         initTrace(player, players[i]);
     }

@@ -1,9 +1,0 @@
-{
-  "name": "walkie_stalkie_app",
-  "version": "0.0.1",
-  "description": "stalkie stalkie ya cunt",
-  "dependencies": {
-    "express": "^4.10.2",
-    "socket.io": "^1.5.0"
-  }
-}

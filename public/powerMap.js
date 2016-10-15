@@ -4,7 +4,7 @@ var player = {markers: [], lat: -34.397, lng: 150.644};
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
       center: {lat: -34.397, lng: 150.644},
-      zoom: 20,
+      zoom: 19,
       scrollwheel: false,
       zoomControl: false,
       mapTypeControl: false,

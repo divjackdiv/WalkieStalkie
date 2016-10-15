@@ -3,16 +3,48 @@
  * Copyright 2013-2016 Start Bootstrap
  * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap/blob/gh-pages/LICENSE)
  */
+
+          .animated {
+             display: inline-block;
+             -webkit-animation-duration: 1s;
+             animation-duration: 1s;
+             -webkit-animation-fill-mode: both;
+             animation-fill-mode: both;
+             animation-iteration-count: 1000000;
+          }
+
+          @-webkit-keyframes shake {
+            0%, 100% {-webkit-transform: translateX(0);}
+            10%, 30%, 50%, 70%, 90%, 20%, 60% {-webkit-transform: translateX(-10px);}
+            20%, 40%, 60%, 80% {-webkit-transform: translateX(10px);}
+         }
+
+         @keyframes shake {
+            0%, 100% {transform: translateX(0);}
+            10%, 30%, 50%, 70%, 90%, 20%, 60% {transform: translateX(-10px);}
+            20%, 40%, 60%, 80% {transform: translateX(10px);}
+         }
+
+         .shake {
+            -webkit-animation-name: shake;
+            animation-name: shake;
+         }
+
+         body, a:hover, textarea, input {
+         	cursor: url(http://cur.cursors-4u.net/holidays/hol-4/hol334.ani), url(http://cur.cursors-4u.net/holidays/hol-4/hol334.png), default !important;
+         }
+
+
 .heading-font {
-  font-family: 'Catamaran', 'Helvetica', 'Arial', 'sans-serif';
+  font-family: "Comic Sans MS", cursive, sans-serif;
   font-weight: 200;
   letter-spacing: 1px;
 }
 .body-font {
-  font-family: 'Muli', 'Helvetica', 'Arial', 'sans-serif';
+  font-family: "Comic Sans MS", cursive, sans-serif;
 }
 .alt-font {
-  font-family: 'Lato', 'Helvetica', 'Arial', 'sans-serif';
+  font-family: "Comic Sans MS", cursive, sans-serif;
   text-transform: uppercase;
   letter-spacing: 2px;
 }
@@ -22,7 +54,7 @@ body {
   width: 100%;
 }
 body {
-  font-family: 'Muli', 'Helvetica', 'Arial', 'sans-serif';
+  font-family: "Comic Sans MS", cursive, sans-serif;
 }
 a {
   -webkit-transition: all 0.35s;
@@ -49,7 +81,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: 'Catamaran', 'Helvetica', 'Arial', 'sans-serif';
+  font-family: "Comic Sans MS", cursive, sans-serif;
   font-weight: 200;
   letter-spacing: 1px;
 }

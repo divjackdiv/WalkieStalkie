@@ -2,7 +2,16 @@ var map;
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
       center: {lat: -34.397, lng: 150.644},
-      zoom: 6
+      zoom: 20,
+      scrollwheel: false,
+      zoomControl: false,
+      mapTypeControl: false,
+      scaleControl: false,
+      streetViewControl: false,
+      rotateControl: false,
+      fullscreenControl: false,
+      draggable: false,
+      keyboardShortcuts: false
     });
     var infoWindow = new google.maps.InfoWindow({map: map});
 
@@ -40,7 +49,7 @@ function getPosition(infoWindow) {
             lat: position.coords.latitude,
             lng: position.coords.longitude
 	};
-	
+
 	infoWindow.setPosition(pos);
 	infoWindow.setContent('Location found.');
 	map.setCenter(pos);
@@ -52,11 +61,11 @@ function getPosition(infoWindow) {
 }
 function trace(currentPosition, targetPosition){
     nbOfPointers = 100; //getDistance(currentPosition, targetPosition);
-    xDistance = (targetPosition.lat - currentPosition.lat)/nbOfPointers; 
-    yDistance = (targetPosition.lng - currentPosition.lng)/nbOfPointers; 
+    xDistance = (targetPosition.lat - currentPosition.lat)/nbOfPointers;
+    yDistance = (targetPosition.lng - currentPosition.lng)/nbOfPointers;
     var flightPlanCoordinates = [];
-    
-    var angle = Math.atan2(targetPosition.lat - currentPosition.lat, targetPosition.lng - currentPosition.lng )*(180/Math.PI); 
+
+    var angle = Math.atan2(targetPosition.lat - currentPosition.lat, targetPosition.lng - currentPosition.lng )*(180/Math.PI);
     var image = {
         url: "./traceIcon.png",
         scaledSize: new google.maps.Size(32, 30),
@@ -66,13 +75,13 @@ function trace(currentPosition, targetPosition){
     nbOfShownPointers = nbOfPointers/10;
     console.log(angle);
     for (var i = 0; i < nbOfShownPointers; i++){
-        var p = {lat: currentPosition.lat + (xDistance *i), lng: currentPosition.lng + (yDistance *i)}; 
+        var p = {lat: currentPosition.lat + (xDistance *i), lng: currentPosition.lng + (yDistance *i)};
         var marker = new google.maps.Marker({
           position: p,
           map: map,
           icon: image
         });
-    } 
+    }
     var marker = new google.maps.Marker({
           position: currentPosition,
           map: map,
@@ -88,4 +97,3 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
                           'Error: The Geolocation service failed.' :
                           'Error: Your browser doesn\'t support geolocation.');
 }
-        

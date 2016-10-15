@@ -15,8 +15,18 @@ function initMap() {
       draggable: false,
       keyboardShortcuts: false
     });
-    var infoWindow = new google.maps.InfoWindow({map: map});
+    //var infoWindow = new google.maps.InfoWindow({map: map});
+    var icon = {
+        url: "img/face.png", // url
+        scaledSize: new google.maps.Size(64, 64), // scaled size
+        origin: new google.maps.Point(0,0), // origin
+        anchor: new google.maps.Point(0, 0) // anchor
+    };
 
+    var faceMarker = new google.maps.Marker({
+                                                map: map,
+                                                icon: icon
+                                            });
     // Try HTML5 geolocation.
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(function(position) {
@@ -25,35 +35,33 @@ function initMap() {
           lng: position.coords.longitude
         };
 
-        infoWindow.setPosition(pos);
-        infoWindow.setContent('Location found.');
+        faceMarker.setPosition(pos);
         map.setCenter(pos);
       }, function() {
-        handleLocationError(true, infoWindow, map.getCenter());
+        console.log("yer a fanny n yer brooser disnae suppoart geolocation");
       });
     } else {
-        handleLocationError(false, infoWindow, map.getCenter());
+      console.log("yer a fanny n yer brooser disnae suppoart geolocation");
     }
 
     initMarkers();
     setInterval(function() {
-	   getPosition(infoWindow);
+	   getPosition(faceMarker);
         console.log("fuck");
     }, 1000);
-    
+
 }
 
-function getPosition(infoWindow) {
+function getPosition(faceMarker) {
     navigator.geolocation.getCurrentPosition(function(position) {
 	var pos = {
             lat: position.coords.latitude,
             lng: position.coords.longitude
 	};
-	infoWindow.setPosition(pos);
-	infoWindow.setContent('Location found.');
+	faceMarker.setPosition(pos);
 	map.setCenter(pos);
     }, function() {
-	   handleLocationError(true, infoWindow, map.getCenter());
+      console.log("yer a fanny n yer brooser disnae suppoart geolocation");
     });
 }
 function smokeBomb(){
@@ -104,12 +112,6 @@ function initTrace(player, targetPlayer){
         targetPlayer.markers.push(marker);
     }
 }
-function handleLocationError(browserHasGeolocation, infoWindow, pos) {
-    infoWindow.setPosition(pos);
-    infoWindow.setContent(browserHasGeolocation ?
-                          'Error: The Geolocation service failed.' :
-                          'Error: Your browser doesn\'t support geolocation.');
-}
 
 // Create an array to store our particles
 var particles = [];
@@ -159,11 +161,11 @@ function Particle(context) {
 
     // The function to draw the particle on the canvas.
     this.draw = function() {
-        
+
         // If an image is set draw it
         if(this.image){
-            this.context.drawImage(this.image, this.x-128, this.y-128);         
-            // If the image is being rendered do not draw the circle so break out of the draw function                
+            this.context.drawImage(this.image, this.x-128, this.y-128);
+            // If the image is being rendered do not draw the circle so break out of the draw function
             return;
         }
         // Draw the circle as before, with the addition of using the position and the radius from this object.
@@ -196,7 +198,7 @@ function Particle(context) {
             this.yVelocity = -this.yVelocity;
             this.y = canvasHeight;
         }
-        
+
         // Check if has crossed the top edge
         else if (this.y <= 0) {
             this.yVelocity = -this.yVelocity;
@@ -215,7 +217,7 @@ function Particle(context) {
         this.xVelocity = x;
         this.yVelocity = y;
     };
-    
+
     this.setImage = function(image){
         this.image = image;
     }
@@ -240,13 +242,13 @@ function init() {
         // Create the particles and set their initial positions and velocities
         for(var i=0; i < particleCount; ++i){
             var particle = new Particle(context);
-            
+
             // Set the position to be inside the canvas bounds
             particle.setPosition(generateRandom(0, canvasWidth), generateRandom(0, canvasHeight));
-            
+
             // Set the initial velocity to be either random and either negative or positive
             particle.setVelocity(generateRandom(-maxVelocity, maxVelocity), generateRandom(-maxVelocity, maxVelocity));
-            particles.push(particle);            
+            particles.push(particle);
         }
     }
     else {

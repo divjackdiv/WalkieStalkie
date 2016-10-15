@@ -23,7 +23,8 @@ function initMap() {
     } else {
         handleLocationError(false, infoWindow, map.getCenter());
     }
-    var currentPosition = {lat: -34.397, lng: 150.644};
+    //var currentPosition = {lat: -34.397, lng: 150.644};
+    var currentPosition = getPosition(infoWindow);
     var target = {lat: 90, lng: 120.644};
     //setInterval(getPosition(infoWindow), 1000);
     setInterval(function() {
@@ -49,21 +50,37 @@ function getPosition(infoWindow) {
 	handleLocationError(true, infoWindow, map.getCenter());
     });
 }
-function updatePositions(infoWindow) {
-}
 function trace(currentPosition, targetPosition){
-    var flightPlanCoordinates = [
-        currentPosition,
-        targetPosition
-    ];
-    var flightPath = new google.maps.Polyline({
-            path: flightPlanCoordinates,
-            geodesic: true,
-            strokeColor: '#FF0000',
-            strokeOpacity: 1.0,
-            strokeWeight: 2
-    });
-    flightPath.setMap(map);
+    nbOfPointers = 100; //getDistance(currentPosition, targetPosition);
+    xDistance = (targetPosition.lat - currentPosition.lat)/nbOfPointers; 
+    yDistance = (targetPosition.lng - currentPosition.lng)/nbOfPointers; 
+    var flightPlanCoordinates = [];
+    
+    var angle = Math.atan2(targetPosition.lat - currentPosition.lat, targetPosition.lng - currentPosition.lng )*(180/Math.PI); 
+    var image = {
+        url: "./traceIcon.png",
+        scaledSize: new google.maps.Size(32, 30),
+        anchor: new google.maps.Point(16, 15) ,
+        rotation: 52
+    };
+    nbOfShownPointers = nbOfPointers/10;
+    console.log(angle);
+    for (var i = 0; i < nbOfShownPointers; i++){
+        var p = {lat: currentPosition.lat + (xDistance *i), lng: currentPosition.lng + (yDistance *i)}; 
+        var marker = new google.maps.Marker({
+          position: p,
+          map: map,
+          icon: image
+        });
+    } 
+    var marker = new google.maps.Marker({
+          position: currentPosition,
+          map: map,
+        });
+    var marker = new google.maps.Marker({
+          position: targetPosition,
+          map: map,
+        });
 }
 function handleLocationError(browserHasGeolocation, infoWindow, pos) {
     infoWindow.setPosition(pos);

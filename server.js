@@ -82,21 +82,20 @@ function onClientDisconnect () {
 // New player has joined
 function onNewPlayer (data) {
   // Create a new player
-  var newPlayer = new Player(data.lat, data.lng)
-  newPlayer.id = this.id
+  var newPlayer = new Player(data.lat, data.lng);
+  newPlayer.id = this.id;
   // Broadcast new player to connected socket clients
   this.broadcast.emit('new player', {id: newPlayer.id, lat: newPlayer.getLat(), lng: newPlayer.getLng()});
   // Send existing players to the new player
-  var i, existingPlayer
+  var i, existingPlayer;
   for (i = 0; i < players.length; i++) {
       existingPlayer = players[i]
       //TODO: Look at this v
       this.emit('new player', {id: existingPlayer.id, lat: existingPlayer.getLat(), lng: existingPlayer.getLng()});
   }
   // Add new player to the players array
-  players.push(newPlayer)
+  players.push(newPlayer);
 }
-
 
 function onPositionUpdate (data) {
   // Find player in array

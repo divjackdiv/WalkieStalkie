@@ -12,7 +12,7 @@ function setEventHandlers() {
     socket.on("remove player", onRemovePlayer);
 }
 function onNewPlayer(p){
-    var newPlayer = {id :p.id, markers: [], lat: p.lat, lng: p.lng, hunted = p.hunted};
+    var newPlayer = {id :p.id, markers: [], lat: p.lat, lng: p.lng, hunted: p.hunted};
     players.push(newPlayer);
     console.log("new player");
     initTrace(player, newPlayer);
@@ -160,7 +160,6 @@ function updateTrace(player){
             });
         }
     }
-}
 function handleLocationError(browserHasGeolocation, faceMarker, pos) {
     faceMarker.setPosition(pos);
     console.log(browserHasGeolocation ?

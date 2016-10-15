@@ -58,18 +58,23 @@ function getPosition(infoWindow) {
 }
 function smokeBomb(){
     document.getElementById('myCanvas').style.display = "block";
-    /*for (var i = 0; i < players[playerIndex].markers.length ; i++){
-        players[playerIndex].markers[i].setMap(null);
+    for (var playerIndex = 0; playerIndex <  players.length; playerIndex++){
+        for (var i = 0; i < players[playerIndex].markers.length ; i++){
+            players[playerIndex].markers[i].setMap(null);
+        }
     }
-    setTimeout(function() { makeVisibleAgain(playerIndex); }, 5000);*/
     setTimeout(function() { makeVisibleAgain(); }, 5000);
 }
 
 function makeVisibleAgain(){
+    console.log("ggg");
     document.getElementById('myCanvas').style.display = "none";
-    /*for (var i = 0; i < players[playerIndex].markers.length ; i++){
-        players[playerIndex].markers[i].setMap(map);
-    }*/
+
+    for (var playerIndex = 0; playerIndex <  players.length; playerIndex++){
+        for (var i = 0; i < players[playerIndex].markers.length ; i++){
+            players[playerIndex].markers[i].setMap(map);
+        }
+    }
 }
 
 function initMarkers(){

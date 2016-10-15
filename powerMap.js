@@ -67,7 +67,7 @@ function trace(currentPosition, targetPosition){
 
     var angle = Math.atan2(targetPosition.lat - currentPosition.lat, targetPosition.lng - currentPosition.lng )*(180/Math.PI);
     var image = {
-        url: "./traceIcon.png",
+        path: google.maps.SymbolPath.FORWARD_OPEN_ARROW,
         scaledSize: new google.maps.Size(32, 30),
         anchor: new google.maps.Point(16, 15) ,
         rotation: 52

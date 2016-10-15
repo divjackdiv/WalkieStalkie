@@ -12,7 +12,7 @@ function setEventHandlers() {
     socket.on("remove player", onRemovePlayer);
 }
 function onNewPlayer(p){
-    var newPlayer = {id :p.id, markers: [], lat: p.lat, lng: p.lng};
+    var newPlayer = {id :p.id, markers: [], lat: p.lat, lng: p.lng, hunted = p.hunted};
     players.push(newPlayer);
     console.log("new player");
     initTrace(player, newPlayer);

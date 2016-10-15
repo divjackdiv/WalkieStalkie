@@ -5,6 +5,8 @@ var server = require('http').Server(app);
 var io = require('socket.io')(http);
 var util = require('util');
 var Player = require('./lib/Player');
+var hunters = 0;
+var victims = 0;
 
 
 // Set port
@@ -84,6 +86,14 @@ function onNewPlayer (data) {
   // Create a new player
   var newPlayer = new Player(data.lat, data.lng);
   newPlayer.id = this.id;
+  // defining what kind of user
+  if (hunters > victims) {
+  	hunted = True;
+  	victims++;
+  } else {
+  	hunted = False;
+  	hunters++;
+  }
   // Broadcast new player to connected socket clients
   this.broadcast.emit('new player', {id: newPlayer.id, lat: newPlayer.getLat(), lng: newPlayer.getLng()});
   // Send existing players to the new player

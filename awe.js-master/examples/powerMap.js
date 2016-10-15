@@ -25,7 +25,31 @@ function initMap() {
     }
     var currentPosition = {lat: -34.397, lng: 150.644};
     var target = {lat: 90, lng: 120.644};
-    trace(currentPosition, target)
+    //setInterval(getPosition(infoWindow), 1000);
+    setInterval(function() {
+	getPosition(infoWindow);
+	//trace
+        console.log("fuck");
+    }, 1000);
+    trace(currentPosition, target);
+}
+function getPosition(infoWindow) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+	var pos = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+	};
+	
+	infoWindow.setPosition(pos);
+	infoWindow.setContent('Location found.');
+	map.setCenter(pos);
+	console.log("rrrr");
+    }, function() {
+	console.log("fucked it");
+	handleLocationError(true, infoWindow, map.getCenter());
+    });
+}
+function updatePositions(infoWindow) {
 }
 function trace(currentPosition, targetPosition){
     var flightPlanCoordinates = [

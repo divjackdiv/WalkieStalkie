@@ -16,6 +16,7 @@ function onNewPlayer(p){
 }
 function onSocketConnected() {
     console.log("Connected to socket server");
+    socket.emit("new player", {lat: -34.397, lng: -34.397});
 };
 
 function onSocketDisconnect() {

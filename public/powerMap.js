@@ -20,7 +20,7 @@ function initMap() {
         url: "img/face.png", // url
         scaledSize: new google.maps.Size(64, 64), // scaled size
         origin: new google.maps.Point(0,0), // origin
-        anchor: new google.maps.Point(0, 0) // anchor
+        anchor: new google.maps.Point(32, 32) // anchor
     };
 
     var faceMarker = new google.maps.Marker({

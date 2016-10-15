@@ -1,10 +1,47 @@
 var map;
-var players = [];
-var player = {markers: [], lat: -34.397, lng: 150.644};
+var players;
+var player = {markers: [], lat: 0, lng: 0};
+var socket;
+
+function setEventHandlers() {
+    console.log("connection");
+    socket.on("connect", onSocketConnected);
+    socket.on("disconnect", onSocketDisconnect);
+    socket.on("new player", onNewPlayer);
+    socket.on("move player", onMovePlayer);
+    socket.on("remove player", onRemovePlayer);
+}
+function onNewPlayer(p){
+    var newPlayer = {id :p.id, markers: [], lat: p.lat, lng: p.lng};
+    players.push(newPlayer);
+    console.log("new player");
+    initTrace(player, newPlayer);
+   // players = [];
+}
+function onSocketConnected() {
+    console.log("Connected to socket server");
+    socket.emit("new player", player);
+};
+
+function onSocketDisconnect() {
+    console.log("Disconnected from socket server");
+};
+
+function onMovePlayer(data) {
+    for (var i; i<players.length; i++){
+        if(players[i].id == data.id){
+            players[i] = {id :data.id, markers: [], lat: data.lat, lng: data.lng};
+        }
+    }
+};
+
+function onRemovePlayer(data) {
+
+};
 
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
-      center: {lat: -34.397, lng: 150.644},
+      center: {lat: -34.397, lng: 150.640},
       zoom: 19,
       scrollwheel: false,
       zoomControl: false,
@@ -36,6 +73,7 @@ function initMap() {
           lng: position.coords.longitude
         };
 
+        player = {markers: [], lat: pos.lat, lng: pos.lng};
         faceMarker.setPosition(pos);
         map.setCenter(pos);
       }, function() {
@@ -44,13 +82,14 @@ function initMap() {
     } else {
         handleLocationError(false, faceMarker, map.getCenter());
     }
-
+    players = [];
     initMarkers();
     setInterval(function() {
 	   getPosition(faceMarker);
-        console.log("fuck");
+       updateTrace();
     }, 1000);
-
+    socket = io.connect();
+    setEventHandlers();
 }
 
 function getPosition(faceMarker) {
@@ -82,17 +121,12 @@ function makeVisibleAgain(){
 }
 
 function initMarkers(){
-    var player1 = {markers: [], lat: -34.3972, lng: 150.645};
-    var player2 = {markers: [], lat: -34.3972, lng: 150.642};
-    var player3 = {markers: [], lat: -34.395, lng: 150.643};
-    players.push(player1);
-    players.push(player2);
-    players.push(player3);
     for (var i = 0; i < players.length; i++){
         initTrace(player, players[i]);
     }
 }
 function initTrace(player, targetPlayer){
+    console.log("init trace " + targetPlayer.lat + " and lng " + targetPlayer.lng);
     nbOfPointers = 100; //getDistance(player, targetPlayer);
     xDistance = (targetPlayer.lat - player.lat)/nbOfPointers;
     yDistance = (targetPlayer.lng - player.lng)/nbOfPointers;
@@ -103,7 +137,9 @@ function initTrace(player, targetPlayer){
         rotation: angle
     };
     nbOfShownPointers = nbOfPointers/10;
-    for (var i = 1; i < nbOfShownPointers; i++){
+    for (var i = 0; i < nbOfShownPointers; i++){
+
+        console.log("lat is " + (player.lat + (xDistance *i)) + "  lng is " + (player.lng + (yDistance *i)));
         var p = {lat: player.lat + (xDistance *i), lng: player.lng + (yDistance *i)};
         var marker = new google.maps.Marker({
           position: p,
@@ -111,6 +147,18 @@ function initTrace(player, targetPlayer){
           icon: image
         });
         targetPlayer.markers.push(marker);
+    }
+}
+function updateTrace(player){
+    for (var j = 0; j < players.length; j++)
+        for (var i = 0; i < players[j].markers.length; i++){
+            var p = {lat: players[j].lat + (xDistance *i), lng: players[j].lng + (yDistance *i)};
+            players[j].markers[i] = new google.maps.Marker({
+              position: p,
+              map: map,
+              icon: image
+            });
+        }
     }
 }
 function handleLocationError(browserHasGeolocation, faceMarker, pos) {
@@ -292,3 +340,4 @@ if (context) {
         draw();
     }, 1000 / targetFPS);
 }
+

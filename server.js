@@ -34,7 +34,6 @@ server = app.listen(app.get('port'), function(err) {
 function init() {
     // Create empty array to store players
     players = [];
-
     // Attach socket.io to server
     socket = io.listen(server);
 

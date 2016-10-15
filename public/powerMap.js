@@ -1,6 +1,11 @@
 var map;
 var players = [];
 var player = {markers: [], lat: -34.397, lng: 150.644};
+
+socket.on('new player', function(){
+    players.push();
+});
+
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
       center: {lat: -34.397, lng: 150.644},

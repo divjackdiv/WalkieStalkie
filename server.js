@@ -88,10 +88,10 @@ function onNewPlayer (data) {
   newPlayer.id = this.id;
   // defining what kind of user
   if (hunters > victims) {
-  	hunted = True;
+  	this.hunted = True;
   	victims++;
   } else {
-  	hunted = False;
+  	this.hunted = False;
   	hunters++;
   }
   // Broadcast new player to connected socket clients

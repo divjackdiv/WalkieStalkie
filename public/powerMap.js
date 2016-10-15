@@ -156,7 +156,7 @@ function updateTrace(player){
             players[j].markers[i] = new google.maps.Marker({
               position: p,
               map: map,
-              icon: image
+              //icon: image
             });
         }
     }

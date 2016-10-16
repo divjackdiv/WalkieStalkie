@@ -1,8 +1,8 @@
 var map;
 var players;
-var player = {markers: [], lat: 0, lng: 0};
+var player = {id : 0, markers: [], lat: 0, lng: 0, hunted: null};
 var socket;
-
+var smokingAvailable;
 function setEventHandlers() {
     console.log("connection");
     socket.on("connect", onSocketConnected);
@@ -10,14 +10,26 @@ function setEventHandlers() {
     socket.on("new player", onNewPlayer);
     socket.on("move player", onMovePlayer);
     socket.on("remove player", onRemovePlayer);
+    socket.on("get smoked", smokeBomb);
+    socket.on("set role", setRole);
 }
 function onNewPlayer(p){
+    console.log("added new player? " + p.hunted)
+    if (p.hunted == player.hunted){
+        return;
+    }
     var newPlayer = {id :p.id, markers: [], lat: p.lat, lng: p.lng, hunted: p.hunted};
-    players.push(newPlayer);
-    console.log("new player");
     initTrace(player, newPlayer);
+    console.log("new player " + newPlayer.markers.length);
+    players.push(newPlayer);
    // players = [];
 }
+
+function setRole(data){
+    player.hunted = data.hunted;
+    console.log("hunter = " + data.hunted );
+}
+
 function onSocketConnected() {
     console.log("Connected to socket server");
     socket.emit("new player", player);
@@ -28,15 +40,27 @@ function onSocketDisconnect() {
 };
 
 function onMovePlayer(data) {
-    for (var i; i<players.length; i++){
+    if (data.hunted == player.hunted){
+        return;
+    }
+    for (var i = 0; i<players.length; i++){
         if(players[i].id == data.id){
-            players[i] = {id :data.id, markers: [], lat: data.lat, lng: data.lng};
+            players[i].id = data.id;
+            players[i].lat = data.lat;
+            players[i].lng = data.lng;
         }
     }
 };
 
 function onRemovePlayer(data) {
-
+    for (var i = 0; i<players.length; i++){
+        if(players[i].id == data.id){
+            for (var j = 0; j < players[i].markers.length ; j++){
+                players[i].markers[j].setMap(null);
+            }
+            players.splice(i, 1);
+        }
+    }   
 };
 
 function initMap() {
@@ -53,17 +77,26 @@ function initMap() {
       draggable: false,
       keyboardShortcuts: false
     });
-    var icon = {
-        url: "img/face.png", // url
-        scaledSize: new google.maps.Size(64, 141), // scaled size
-        origin: new google.maps.Point(0,0), // origin
-        anchor: new google.maps.Point(32, 128) // anchor
-    };
+    if (player.hunter == false){
+        var icon = {
+            url: "img/face.png", // url
+            scaledSize: new google.maps.Size(64, 64), // scaled size
+            origin: new google.maps.Point(0,0), // origin
+            anchor: new google.maps.Point(32, 32) // anchor
+        };
+    } else {
+        var icon = {
+            url: "img/badface.png", // url
+            scaledSize: new google.maps.Size(64, 64), // scaled size
+            origin: new google.maps.Point(0,0), // origin
+            anchor: new google.maps.Point(32, 32) // anchor
+        };
+    }
 
     var faceMarker = new google.maps.Marker({
-                                                map: map,
-                                                icon: icon
-                                            });
+        map: map,
+        icon: icon
+    });
 
     // Try HTML5 geolocation.
     if (navigator.geolocation) {
@@ -72,8 +105,11 @@ function initMap() {
           lat: position.coords.latitude,
           lng: position.coords.longitude
         };
+        console.log("playerPos " + pos.lat + " lng " + pos.lng);
 
-        player = {markers: [], lat: pos.lat, lng: pos.lng};
+        player.lat = pos.lat;
+        player.lng = pos.lng;
+       // console.log("player lat " + player.lat + " and lng " + player.lng);
         faceMarker.setPosition(pos);
         map.setCenter(pos);
       }, function() {
@@ -82,11 +118,12 @@ function initMap() {
     } else {
         handleLocationError(false, faceMarker, map.getCenter());
     }
+    smokingAvailable = true;
     players = [];
-    initMarkers();
     setInterval(function() {
 	   getPosition(faceMarker);
        updateTrace();
+       socket.emit("move player", player);
     }, 1000);
     socket = io.connect();
     setEventHandlers();
@@ -99,10 +136,20 @@ function getPosition(faceMarker) {
             lng: position.coords.longitude
 	};
 	faceMarker.setPosition(pos);
+    player.lat = pos.lat;
+    player.lng = pos.lng;
 	map.setCenter(pos);
     }, function() {
 	   handleLocationError(true, faceMarker, map.getCenter());
     });
+}
+
+function smokeButton(){
+    if(!smokingAvailable) return;
+    smokingAvailable = false;
+    socket.emit("get smoked");
+    setTimeout(function() { smokingAvailable = true; }, 20000);
+    smokeBomb();
 }
 function smokeBomb(){
     document.getElementById('myCanvas').style.display = "block";
@@ -120,13 +167,7 @@ function makeVisibleAgain(){
     }*/
 }
 
-function initMarkers(){
-    for (var i = 0; i < players.length; i++){
-        initTrace(player, players[i]);
-    }
-}
 function initTrace(player, targetPlayer){
-    console.log("init trace " + targetPlayer.lat + " and lng " + targetPlayer.lng);
     nbOfPointers = 100; //getDistance(player, targetPlayer);
     xDistance = (targetPlayer.lat - player.lat)/nbOfPointers;
     yDistance = (targetPlayer.lng - player.lng)/nbOfPointers;
@@ -134,13 +175,16 @@ function initTrace(player, targetPlayer){
     var angle = Math.atan2(targetPlayer.lng - player.lng , targetPlayer.lat - player.lat)* (180 / Math.PI );
     var image = {
         path: google.maps.SymbolPath.FORWARD_OPEN_ARROW,
-        rotation: angle
+        rotation: angle,
+        scale : 4
     };
+    var xOffset = -0.00007;
+    var yOffset = -0.00007;
+    if(xDistance < 0) xOffset = 0.0001;
+    if(yDistance < 0) yOffset = 0.0001;
     nbOfShownPointers = nbOfPointers/10;
     for (var i = 0; i < nbOfShownPointers; i++){
-
-        console.log("lat is " + (player.lat + (xDistance *i)) + "  lng is " + (player.lng + (yDistance *i)));
-        var p = {lat: player.lat + (xDistance *i), lng: player.lng + (yDistance *i)};
+        var p = {lat: player.lat + (xDistance * i) +xOffset, lng: player.lng + (yDistance * i) + yOffset};
         var marker = new google.maps.Marker({
           position: p,
           map: map,
@@ -149,17 +193,34 @@ function initTrace(player, targetPlayer){
         targetPlayer.markers.push(marker);
     }
 }
-function updateTrace(player){
-    for (var j = 0; j < players.length; j++)
+function updateTrace(){
+    //console.log("plyars " + players.length);
+    for (var j = 0; j < players.length; j++){
+        var xOffset = -0.00007;
+        var yOffset = -0.00007;
+        if(players[j].lat - player.lat > 0) xOffset = 0.0008;
+        if(players[j].lng - player.lng > 0) yOffset = 0.0008;
+        //console.log("       seee " + players[j].id + " lat " +players[j].lat + " and " + players[j].lng);
         for (var i = 0; i < players[j].markers.length; i++){
-            var p = {lat: players[j].lat + (xDistance *i), lng: players[j].lng + (yDistance *i)};
-            players[j].markers[i] = new google.maps.Marker({
-              position: p,
-              map: map,
-              //icon: image
-            });
+            //console.log("           fefe");
+            nbOfPointers = 100; 
+            xDistance = (players[j].lat - player.lat)/nbOfPointers;
+            yDistance = (players[j].lng - player.lng)/nbOfPointers;
+            var angle = Math.atan2(players[j].lng - player.lng , players[j].lat - player.lat)* (180 / Math.PI );
+            var image = {
+                path: google.maps.SymbolPath.FORWARD_OPEN_ARROW,
+                rotation: angle,
+                scale : 4
+            };
+            var p = {lat: player.lat + (xDistance *i)+xOffset, lng: player.lng + (yDistance * i)+yOffset};
+            //console.log(p.lat+ " and " + p.lng + " but plyare " + player.lat + " and " + player.lng);
+            var latlng = new google.maps.LatLng(p.lat, p.lng);
+            players[j].markers[i].setPosition(latlng);
+            players[j].markers[i].set("icon", image);
         }
     }
+}
+
 function handleLocationError(browserHasGeolocation, faceMarker, pos) {
     faceMarker.setPosition(pos);
     console.log(browserHasGeolocation ?

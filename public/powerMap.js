@@ -9,6 +9,7 @@ function setEventHandlers() {
     socket.on("disconnect", onSocketDisconnect);
     socket.on("new player", onNewPlayer);
     socket.on("move player", onMovePlayer);
+    socket.on("update position", onPositionUpdate);
     socket.on("remove player", onRemovePlayer);
 }
 function onNewPlayer(p){

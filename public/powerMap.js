@@ -85,8 +85,9 @@ function initMap() {
     players = [];
     initMarkers();
     setInterval(function() {
-	   getPosition(faceMarker);
-       updateTrace();
+	getPosition(faceMarker);
+	updateTrace();
+	socket.emit('update position', player);
     }, 1000);
     socket = io.connect();
     setEventHandlers();

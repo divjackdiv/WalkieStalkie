@@ -1,6 +1,6 @@
 var map;
 var players;
-var player = {markers: [], lat: 0, lng: 0};
+var player = {id : 0, markers: [], lat: 0, lng: 0};
 var socket;
 
 function setEventHandlers() {
@@ -13,11 +13,12 @@ function setEventHandlers() {
 }
 function onNewPlayer(p){
     var newPlayer = {id :p.id, markers: [], lat: p.lat, lng: p.lng};
-    players.push(newPlayer);
-    console.log("new player");
+    console.log("new player ");
     initTrace(player, newPlayer);
+    players.push(newPlayer);
    // players = [];
 }
+
 function onSocketConnected() {
     console.log("Connected to socket server");
     socket.emit("new player", player);
@@ -28,7 +29,7 @@ function onSocketDisconnect() {
 };
 
 function onMovePlayer(data) {
-    for (var i; i<players.length; i++){
+    for (var i = 0; i<players.length; i++){
         if(players[i].id == data.id){
             players[i] = {id :data.id, markers: [], lat: data.lat, lng: data.lng};
         }
@@ -36,7 +37,12 @@ function onMovePlayer(data) {
 };
 
 function onRemovePlayer(data) {
-
+    console.log("REMOVING plyare");
+    for (var i = 0; i<players.length; i++){
+        if(players[i].id == data.id){
+            players.splice(i, 1)
+        }
+    }   
 };
 
 function initMap() {
@@ -73,7 +79,9 @@ function initMap() {
           lng: position.coords.longitude
         };
 
-        player = {markers: [], lat: pos.lat, lng: pos.lng};
+        player.lat = pos.lat;
+        player.lng = pos.lng;
+        console.log("player lat " + player.lat + " and lng " + player.lng);
         faceMarker.setPosition(pos);
         map.setCenter(pos);
       }, function() {
@@ -87,6 +95,7 @@ function initMap() {
     setInterval(function() {
 	   getPosition(faceMarker);
        updateTrace();
+       socket.emit("move player", player);
     }, 1000);
     socket = io.connect();
     setEventHandlers();
@@ -99,6 +108,8 @@ function getPosition(faceMarker) {
             lng: position.coords.longitude
 	};
 	faceMarker.setPosition(pos);
+    player.lat = pos.lat;
+    player.lng = pos.lng;
 	map.setCenter(pos);
     }, function() {
 	   handleLocationError(true, faceMarker, map.getCenter());
@@ -138,8 +149,7 @@ function initTrace(player, targetPlayer){
     };
     nbOfShownPointers = nbOfPointers/10;
     for (var i = 0; i < nbOfShownPointers; i++){
-
-        console.log("lat is " + (player.lat + (xDistance *i)) + "  lng is " + (player.lng + (yDistance *i)));
+        console.log("       i " + i);
         var p = {lat: player.lat + (xDistance *i), lng: player.lng + (yDistance *i)};
         var marker = new google.maps.Marker({
           position: p,
@@ -149,15 +159,24 @@ function initTrace(player, targetPlayer){
         targetPlayer.markers.push(marker);
     }
 }
-function updateTrace(player){
-    for (var j = 0; j < players.length; j++)
+function updateTrace(){
+    //console.log("plyars " + players.length);
+    for (var j = 0; j < players.length; j++){
+        //console.log("       seee " + players[j].id + " lat " +players[j].lat + " and " + players[j].lng);
+        //console.log("markers length " + players[j].markers.length);
         for (var i = 0; i < players[j].markers.length; i++){
+            //console.log("           fefe");
+            nbOfPointers = 100; 
+            xDistance = (players[j].lat - player.lat)/nbOfPointers;
+            yDistance = (players[j].lng - player.lng)/nbOfPointers;
+            var angle = Math.atan2(players[j].lng - player.lng , players[j].lat - player.lat)* (180 / Math.PI );
+            var image = {
+                path: google.maps.SymbolPath.FORWARD_OPEN_ARROW,
+                rotation: angle
+            };
             var p = {lat: players[j].lat + (xDistance *i), lng: players[j].lng + (yDistance *i)};
-            players[j].markers[i] = new google.maps.Marker({
-              position: p,
-              map: map,
-              icon: image
-            });
+            
+            players[j].markers[i].position = p;
         }
     }
 }

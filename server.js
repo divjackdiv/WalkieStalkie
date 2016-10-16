@@ -19,7 +19,7 @@ app.use(express.static(__dirname + '/public'));
 ------------------------*/
 var socket;
 var players;
-
+var currentId = 0;
 /* -----------------------
    Game Initialisation
    ------------------------*/
@@ -58,6 +58,8 @@ function onSocketConnection(client) {
     client.on('disconnect', onClientDisconnect);
     // Listen for new player message
     client.on('new player', onNewPlayer);
+
+    client.on('move player', onMovePlayer);
     // Listen for player position update
     client.on('update position', onPositionUpdate);
 }
@@ -65,25 +67,26 @@ function onSocketConnection(client) {
 
 // Socket disconnect
 function onClientDisconnect () {
-  util.log('Player has disconnected: ' + this.id)
+  util.log('Player has disconnected: ' + this.id);
   var removePlayer = playerById(this.id)
-  // Player not found
-  if (!removePlayer) {
-    util.log('Player not found: ' + this.id)
-    return
-  }
   // Remove player from players array
   players.splice(players.indexOf(removePlayer), 1)
   // Broadcast removed player to connected socket clients
   this.broadcast.emit('remove player', {id: this.id})
 }
 
+function onMovePlayer(data){
+  var newPlayer = new Player(data.lat, data.lng);
+  newPlayer.id = this.id;
+  this.broadcast.emit('move player', {id: newPlayer.id, lat: newPlayer.getLat(), lng: newPlayer.getLng()});
+}
 
 // New player has joined
 function onNewPlayer (data) {
   // Create a new player
   var newPlayer = new Player(data.lat, data.lng);
   newPlayer.id = this.id;
+    util.log('hey id is ' + newPlayer.id);
   // Broadcast new player to connected socket clients
   this.broadcast.emit('new player', {id: newPlayer.id, lat: newPlayer.getLat(), lng: newPlayer.getLng()});
   // Send existing players to the new player

@@ -77,12 +77,21 @@ function initMap() {
       draggable: false,
       keyboardShortcuts: false
     });
-    var icon = {
-        url: "img/face.png", // url
-        scaledSize: new google.maps.Size(64, 64), // scaled size
-        origin: new google.maps.Point(0,0), // origin
-        anchor: new google.maps.Point(32, 32) // anchor
-    };
+    if (player.hunter == false){
+        var icon = {
+            url: "img/face.png", // url
+            scaledSize: new google.maps.Size(64, 64), // scaled size
+            origin: new google.maps.Point(0,0), // origin
+            anchor: new google.maps.Point(32, 32) // anchor
+        };
+    } else {
+        var icon = {
+            url: "img/badface.png", // url
+            scaledSize: new google.maps.Size(64, 64), // scaled size
+            origin: new google.maps.Point(0,0), // origin
+            anchor: new google.maps.Point(32, 32) // anchor
+        };
+    }
 
     var faceMarker = new google.maps.Marker({
         map: map,

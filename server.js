@@ -62,11 +62,15 @@ function onSocketConnection(client) {
     client.on('new player', onNewPlayer);
 
     client.on('move player', onMovePlayer);
+
+    client.on('get smoked', smokePlayers);
     // Listen for player position update
     client.on('update position', onPositionUpdate);
 }
 
-
+function smokePlayers(){
+  this.broadcast.emit('get smoked');
+}
 // Socket disconnect
 function onClientDisconnect () {
   util.log('Player has disconnected: ' + this.id);
@@ -78,9 +82,10 @@ function onClientDisconnect () {
 }
 
 function onMovePlayer(data){
-  var newPlayer = new Player(data.lat, data.lng);
-  newPlayer.id = this.id;
-  this.broadcast.emit('move player', {id: newPlayer.id, lat: newPlayer.getLat(), lng: newPlayer.getLng()});
+  var Player = playerById(this.id)
+  Player.lat = data.lat;
+  Player.lng = data.lng;
+  this.broadcast.emit('move player', {id: Player.id, lat: data.lat, lng: data.lng});
 }
 
 // New player has joined

@@ -2,7 +2,7 @@ var map;
 var players;
 var player = {id : 0, markers: [], lat: 0, lng: 0};
 var socket;
-
+var smokingAvailable;
 function setEventHandlers() {
     console.log("connection");
     socket.on("connect", onSocketConnected);
@@ -10,10 +10,12 @@ function setEventHandlers() {
     socket.on("new player", onNewPlayer);
     socket.on("move player", onMovePlayer);
     socket.on("remove player", onRemovePlayer);
+    socket.on("get smoked", smokeBomb);
 }
 function onNewPlayer(p){
     var newPlayer = {id :p.id, markers: [], lat: p.lat, lng: p.lng, hunted: p.hunted};
     initTrace(player, newPlayer);
+    console.log("new player " + newPlayer.markers.length);
     players.push(newPlayer);
    // players = [];
 }
@@ -30,16 +32,20 @@ function onSocketDisconnect() {
 function onMovePlayer(data) {
     for (var i = 0; i<players.length; i++){
         if(players[i].id == data.id){
-            players[i] = {id :data.id, markers: [], lat: data.lat, lng: data.lng};
+            players[i].id = data.id;
+            players[i].lat = data.lat;
+            players[i].lng = data.lng;
         }
     }
 };
 
 function onRemovePlayer(data) {
-    console.log("REMOVING plyare");
     for (var i = 0; i<players.length; i++){
         if(players[i].id == data.id){
-            players.splice(i, 1)
+            for (var j = 0; j < players[i].markers.length ; j++){
+                players[i].markers[j].setMap(null);
+            }
+            players.splice(i, 1);
         }
     }   
 };
@@ -48,9 +54,9 @@ function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
       center: {lat: -34.397, lng: 150.640},
       zoom: 19,
-      scrollwheel: false,
-      zoomControl: false,
-      mapTypeControl: false,
+      scrollwheel: true,
+      zoomControl: true,
+      mapTypeControl: true,
       scaleControl: false,
       streetViewControl: false,
       rotateControl: false,
@@ -80,7 +86,7 @@ function initMap() {
 
         player.lat = pos.lat;
         player.lng = pos.lng;
-        console.log("player lat " + player.lat + " and lng " + player.lng);
+       // console.log("player lat " + player.lat + " and lng " + player.lng);
         faceMarker.setPosition(pos);
         map.setCenter(pos);
       }, function() {
@@ -89,8 +95,8 @@ function initMap() {
     } else {
         handleLocationError(false, faceMarker, map.getCenter());
     }
+    smokingAvailable = true;
     players = [];
-    initMarkers();
     setInterval(function() {
 	   getPosition(faceMarker);
        updateTrace();
@@ -114,6 +120,14 @@ function getPosition(faceMarker) {
 	   handleLocationError(true, faceMarker, map.getCenter());
     });
 }
+
+function smokeButton(){
+    if(!smokingAvailable) return;
+    smokingAvailable = false;
+    socket.emit("get smoked");
+    setTimeout(function() { smokingAvailable = true; }, 20000);
+    smokeBomb();
+}
 function smokeBomb(){
     document.getElementById('myCanvas').style.display = "block";
     /*for (var i = 0; i < players[playerIndex].markers.length ; i++){
@@ -130,13 +144,7 @@ function makeVisibleAgain(){
     }*/
 }
 
-function initMarkers(){
-    for (var i = 0; i < players.length; i++){
-        initTrace(player, players[i]);
-    }
-}
 function initTrace(player, targetPlayer){
-    console.log("init trace " + targetPlayer.lat + " and lng " + targetPlayer.lng);
     nbOfPointers = 100; //getDistance(player, targetPlayer);
     xDistance = (targetPlayer.lat - player.lat)/nbOfPointers;
     yDistance = (targetPlayer.lng - player.lng)/nbOfPointers;
@@ -149,8 +157,7 @@ function initTrace(player, targetPlayer){
     };
     nbOfShownPointers = nbOfPointers/10;
     for (var i = 0; i < nbOfShownPointers; i++){
-        console.log("       i " + i);
-        var p = {lat: player.lat + (xDistance *i), lng: player.lng + (yDistance *i)};
+        var p = {lat: player.lat + (xDistance *(i+1)), lng: player.lng + (yDistance *(i+1))};
         var marker = new google.maps.Marker({
           position: p,
           map: map,

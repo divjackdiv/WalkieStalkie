@@ -85,7 +85,7 @@ function onMovePlayer(data){
   var Player = playerById(this.id)
   Player.lat = data.lat;
   Player.lng = data.lng;
-  this.broadcast.emit('move player', {id: Player.id, lat: data.lat, lng: data.lngc});
+  this.broadcast.emit('move player', {id: Player.id, lat: data.lat, lng: data.lng});
 }
 
 // New player has joined

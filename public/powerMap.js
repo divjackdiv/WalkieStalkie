@@ -33,7 +33,6 @@ function onSocketDisconnect() {
 function onMovePlayer(data) {
     for (var i = 0; i<players.length; i++){
         if(players[i].id == data.id){
-            console.log(" player moved to " + data.lat + " and " + data.lng);
             players[i].id = data.id;
             players[i].lat = data.lat;
             players[i].lng = data.lng;
@@ -88,7 +87,7 @@ function initMap() {
 
         player.lat = pos.lat;
         player.lng = pos.lng;
-        console.log("player lat " + player.lat + " and lng " + player.lng);
+       // console.log("player lat " + player.lat + " and lng " + player.lng);
         faceMarker.setPosition(pos);
         map.setCenter(pos);
       }, function() {
@@ -158,7 +157,7 @@ function initTrace(player, targetPlayer){
     };
     nbOfShownPointers = nbOfPointers/10;
     for (var i = 0; i < nbOfShownPointers; i++){
-        var p = {lat: player.lat + (xDistance *i), lng: player.lng + (yDistance *i)};
+        var p = {lat: player.lat + (xDistance *(i+1)), lng: player.lng + (yDistance *(i+1))};
         var marker = new google.maps.Marker({
           position: p,
           map: map,
@@ -181,7 +180,8 @@ function updateTrace(){
                 path: google.maps.SymbolPath.FORWARD_OPEN_ARROW,
                 rotation: angle
             };
-            var p = {lat: player.lat + (xDistance *i), lng: player.lng + (yDistance *i)};
+            var p = {lat: player.lat + (xDistance *i), lng: player.lng + (yDistance * i)};
+            //console.log(p.lat+ " and " + p.lng + " but plyare " + player.lat + " and " + player.lng);
             var latlng = new google.maps.LatLng(p.lat, p.lng);
             players[j].markers[i].setPosition(latlng);
             players[j].markers[i].set("icon", image);

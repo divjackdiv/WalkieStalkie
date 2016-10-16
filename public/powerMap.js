@@ -96,6 +96,7 @@ function initMap() {
           lat: position.coords.latitude,
           lng: position.coords.longitude
         };
+        console.log("playerPos " + pos.lat + " lng " + pos.lng);
 
         player.lat = pos.lat;
         player.lng = pos.lng;
@@ -168,9 +169,13 @@ function initTrace(player, targetPlayer){
         rotation: angle,
         scale : 4
     };
+    var xOffset = -0.00007;
+    var yOffset = -0.00007;
+    if(xDistance < 0) xOffset = 0.0001;
+    if(yDistance < 0) yOffset = 0.0001;
     nbOfShownPointers = nbOfPointers/10;
     for (var i = 0; i < nbOfShownPointers; i++){
-        var p = {lat: player.lat + (xDistance *(i+1)), lng: player.lng + (yDistance *(i+1))};
+        var p = {lat: player.lat + (xDistance * i) +xOffset, lng: player.lng + (yDistance * i) + yOffset};
         var marker = new google.maps.Marker({
           position: p,
           map: map,
@@ -182,6 +187,10 @@ function initTrace(player, targetPlayer){
 function updateTrace(){
     //console.log("plyars " + players.length);
     for (var j = 0; j < players.length; j++){
+        var xOffset = -0.00007;
+        var yOffset = -0.00007;
+        if(players[j].lat - player.lat > 0) xOffset = 0.0008;
+        if(players[j].lng - player.lng > 0) yOffset = 0.0008;
         //console.log("       seee " + players[j].id + " lat " +players[j].lat + " and " + players[j].lng);
         for (var i = 0; i < players[j].markers.length; i++){
             //console.log("           fefe");
@@ -194,7 +203,7 @@ function updateTrace(){
                 rotation: angle,
                 scale : 4
             };
-            var p = {lat: player.lat + (xDistance *i), lng: player.lng + (yDistance * i)};
+            var p = {lat: player.lat + (xDistance *i)+xOffset, lng: player.lng + (yDistance * i)+yOffset};
             //console.log(p.lat+ " and " + p.lng + " but plyare " + player.lat + " and " + player.lng);
             var latlng = new google.maps.LatLng(p.lat, p.lng);
             players[j].markers[i].setPosition(latlng);

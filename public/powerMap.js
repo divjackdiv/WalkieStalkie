@@ -12,8 +12,7 @@ function setEventHandlers() {
     socket.on("remove player", onRemovePlayer);
 }
 function onNewPlayer(p){
-    var newPlayer = {id :p.id, markers: [], lat: p.lat, lng: p.lng};
-    console.log("new player ");
+    var newPlayer = {id :p.id, markers: [], lat: p.lat, lng: p.lng, hunted: p.hunted};
     initTrace(player, newPlayer);
     players.push(newPlayer);
    // players = [];
@@ -61,15 +60,15 @@ function initMap() {
     });
     var icon = {
         url: "img/face.png", // url
-        scaledSize: new google.maps.Size(64, 141), // scaled size
+        scaledSize: new google.maps.Size(64, 64), // scaled size
         origin: new google.maps.Point(0,0), // origin
-        anchor: new google.maps.Point(32, 128) // anchor
+        anchor: new google.maps.Point(32, 32) // anchor
     };
 
     var faceMarker = new google.maps.Marker({
-                                                map: map,
-                                                icon: icon
-                                            });
+        map: map,
+        icon: icon
+    });
 
     // Try HTML5 geolocation.
     if (navigator.geolocation) {
@@ -145,7 +144,8 @@ function initTrace(player, targetPlayer){
     var angle = Math.atan2(targetPlayer.lng - player.lng , targetPlayer.lat - player.lat)* (180 / Math.PI );
     var image = {
         path: google.maps.SymbolPath.FORWARD_OPEN_ARROW,
-        rotation: angle
+        rotation: angle,
+        scale : 4
     };
     nbOfShownPointers = nbOfPointers/10;
     for (var i = 0; i < nbOfShownPointers; i++){
@@ -163,7 +163,6 @@ function updateTrace(){
     //console.log("plyars " + players.length);
     for (var j = 0; j < players.length; j++){
         //console.log("       seee " + players[j].id + " lat " +players[j].lat + " and " + players[j].lng);
-        //console.log("markers length " + players[j].markers.length);
         for (var i = 0; i < players[j].markers.length; i++){
             //console.log("           fefe");
             nbOfPointers = 100; 
@@ -172,14 +171,18 @@ function updateTrace(){
             var angle = Math.atan2(players[j].lng - player.lng , players[j].lat - player.lat)* (180 / Math.PI );
             var image = {
                 path: google.maps.SymbolPath.FORWARD_OPEN_ARROW,
-                rotation: angle
+                rotation: angle,
+                scale : 4
             };
-            var p = {lat: players[j].lat + (xDistance *i), lng: players[j].lng + (yDistance *i)};
-            
-            players[j].markers[i].position = p;
+            var p = {lat: player.lat + (xDistance *i), lng: player.lng + (yDistance * i)};
+            //console.log(p.lat+ " and " + p.lng + " but plyare " + player.lat + " and " + player.lng);
+            var latlng = new google.maps.LatLng(p.lat, p.lng);
+            players[j].markers[i].setPosition(latlng);
+            players[j].markers[i].set("icon", image);
         }
     }
 }
+
 function handleLocationError(browserHasGeolocation, faceMarker, pos) {
     faceMarker.setPosition(pos);
     console.log(browserHasGeolocation ?

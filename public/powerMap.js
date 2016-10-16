@@ -3,6 +3,10 @@ var players;
 var player = {id : 0, markers: [], lat: 0, lng: 0, hunted: null};
 var socket;
 var smokingAvailable;
+
+/* -----------------------
+   Event Handling
+------------------------*/
 function setEventHandlers() {
     console.log("connection");
     socket.on("connect", onSocketConnected);
@@ -12,7 +16,17 @@ function setEventHandlers() {
     socket.on("remove player", onRemovePlayer);
     socket.on("get smoked", smokeBomb);
     socket.on("set role", setRole);
-}
+};
+
+function onSocketConnected() {
+    console.log("Connected to socket server");
+    socket.emit("new player", player);
+};
+
+function onSocketDisconnect() {
+    console.log("Disconnected from socket server");
+};
+
 function onNewPlayer(p){
     console.log("added new player? " + p.hunted)
     if (p.hunted == player.hunted){
@@ -22,21 +36,6 @@ function onNewPlayer(p){
     initTrace(player, newPlayer);
     console.log("new player " + newPlayer.markers.length);
     players.push(newPlayer);
-   // players = [];
-}
-
-function setRole(data){
-    player.hunted = data.hunted;
-    console.log("hunter = " + data.hunted );
-}
-
-function onSocketConnected() {
-    console.log("Connected to socket server");
-    socket.emit("new player", player);
-};
-
-function onSocketDisconnect() {
-    console.log("Disconnected from socket server");
 };
 
 function onMovePlayer(data) {
@@ -63,6 +62,15 @@ function onRemovePlayer(data) {
     }   
 };
 
+function setRole(data){
+    player.hunted = data.hunted;
+    console.log("hunter = " + data.hunted );
+};
+
+
+/* -----------------------
+   Map/Position Initialisation
+------------------------*/
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
       center: {lat: -34.397, lng: 150.640},
@@ -142,31 +150,12 @@ function getPosition(faceMarker) {
     }, function() {
 	   handleLocationError(true, faceMarker, map.getCenter());
     });
-}
+};
 
-function smokeButton(){
-    if(!smokingAvailable) return;
-    smokingAvailable = false;
-    socket.emit("get smoked");
-    setTimeout(function() { smokingAvailable = true; }, 20000);
-    smokeBomb();
-}
-function smokeBomb(){
-    document.getElementById('myCanvas').style.display = "block";
-    /*for (var i = 0; i < players[playerIndex].markers.length ; i++){
-        players[playerIndex].markers[i].setMap(null);
-    }
-    setTimeout(function() { makeVisibleAgain(playerIndex); }, 5000);*/
-    setTimeout(function() { makeVisibleAgain(); }, 5000);
-}
 
-function makeVisibleAgain(){
-    document.getElementById('myCanvas').style.display = "none";
-    /*for (var i = 0; i < players[playerIndex].markers.length ; i++){
-        players[playerIndex].markers[i].setMap(map);
-    }*/
-}
-
+/* -----------------------
+   Player Trace Drawing
+------------------------*/
 function initTrace(player, targetPlayer){
     nbOfPointers = 100; //getDistance(player, targetPlayer);
     xDistance = (targetPlayer.lat - player.lat)/nbOfPointers;
@@ -193,6 +182,7 @@ function initTrace(player, targetPlayer){
         targetPlayer.markers.push(marker);
     }
 }
+
 function updateTrace(){
     //console.log("plyars " + players.length);
     for (var j = 0; j < players.length; j++){
@@ -221,11 +211,43 @@ function updateTrace(){
     }
 }
 
+
+/* -----------------------
+   Error Handling
+------------------------*/
 function handleLocationError(browserHasGeolocation, faceMarker, pos) {
     faceMarker.setPosition(pos);
     console.log(browserHasGeolocation ?
                           'Error: The Geolocation service failed.' :
                           'Error: Your browser doesn\'t support geolocation.');
+}
+
+
+/* -----------------------
+   Smoke Bomb Shit
+   ------------------------*/
+function smokeButton(){
+    if(!smokingAvailable) return;
+    smokingAvailable = false;
+    socket.emit("get smoked");
+    setTimeout(function() { smokingAvailable = true; }, 20000);
+    smokeBomb();
+}
+
+function smokeBomb(){
+    document.getElementById('myCanvas').style.display = "block";
+    /*for (var i = 0; i < players[playerIndex].markers.length ; i++){
+        players[playerIndex].markers[i].setMap(null);
+    }
+    setTimeout(function() { makeVisibleAgain(playerIndex); }, 5000);*/
+    setTimeout(function() { makeVisibleAgain(); }, 5000);
+}
+
+function makeVisibleAgain(){
+    document.getElementById('myCanvas').style.display = "none";
+    /*for (var i = 0; i < players[playerIndex].markers.length ; i++){
+        players[playerIndex].markers[i].setMap(map);
+    }*/
 }
 
 // Create an array to store our particles

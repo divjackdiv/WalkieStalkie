@@ -1,6 +1,6 @@
 var map;
 var players;
-var player = {id : 0, markers: [], lat: 0, lng: 0};
+var player = {id : 0, markers: [], lat: 0, lng: 0, hunted: null};
 var socket;
 var smokingAvailable;
 function setEventHandlers() {
@@ -11,13 +11,23 @@ function setEventHandlers() {
     socket.on("move player", onMovePlayer);
     socket.on("remove player", onRemovePlayer);
     socket.on("get smoked", smokeBomb);
+    socket.on("set role", setRole);
 }
 function onNewPlayer(p){
+    console.log("added new player? " + p.hunted)
+    if (p.hunted == player.hunted){
+        return;
+    }
     var newPlayer = {id :p.id, markers: [], lat: p.lat, lng: p.lng, hunted: p.hunted};
     initTrace(player, newPlayer);
     console.log("new player " + newPlayer.markers.length);
     players.push(newPlayer);
    // players = [];
+}
+
+function setRole(data){
+    player.hunted = data.hunted;
+    console.log("hunter = " + data.hunted );
 }
 
 function onSocketConnected() {
@@ -30,6 +40,9 @@ function onSocketDisconnect() {
 };
 
 function onMovePlayer(data) {
+    if (data.hunted == player.hunted){
+        return;
+    }
     for (var i = 0; i<players.length; i++){
         if(players[i].id == data.id){
             players[i].id = data.id;

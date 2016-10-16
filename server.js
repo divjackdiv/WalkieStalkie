@@ -85,7 +85,7 @@ function onMovePlayer(data){
   var Player = playerById(this.id)
   Player.lat = data.lat;
   Player.lng = data.lng;
-  this.broadcast.emit('move player', {id: Player.id, lat: data.lat, lng: data.lng});
+  this.broadcast.emit('move player', {id: Player.id, lat: data.lat, lng: data.lng, hunted: data.hunted});
 }
 
 // New player has joined
@@ -95,20 +95,22 @@ function onNewPlayer (data) {
   newPlayer.id = this.id;
   // defining what kind of user
   if (hunters > victims) {
-  	this.hunted = true;
+  	newPlayer.hunted = false;
   	victims++;
   } else {
-  	this.hunted = false;
+  	newPlayer.hunted = true;
   	hunters++;
   }
+   util.log('Hunter is ' + newPlayer.hunted);
+  this.emit('set role', {hunted: newPlayer.hunted});
   // Broadcast new player to connected socket clients
-  this.broadcast.emit('new player', {id: newPlayer.id, lat: newPlayer.getLat(), lng: newPlayer.getLng()});
+  this.broadcast.emit('new player', {id: newPlayer.id, lat: newPlayer.getLat(), lng: newPlayer.getLng(), hunted: newPlayer.hunted});
   // Send existing players to the new player
   var i, existingPlayer;
   for (i = 0; i < players.length; i++) {
       existingPlayer = players[i]
       //TODO: Look at this v
-      this.emit('new player', {id: existingPlayer.id, lat: existingPlayer.getLat(), lng: existingPlayer.getLng()});
+      this.emit('new player', {id: existingPlayer.id, lat: existingPlayer.getLat(), lng: existingPlayer.getLng(), hunted: existingPlayer.hunted});
   }
   // Add new player to the players array
   players.push(newPlayer);

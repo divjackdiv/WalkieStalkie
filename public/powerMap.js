@@ -132,6 +132,7 @@ function makeVisibleAgain(){
 }
 
 function initMarkers(){
+    console.log("init markers");
     for (var i = 0; i < players.length; i++){
         initTrace(player, players[i]);
     }
